@@ -4,7 +4,9 @@
     "debugType": "portable",
     "emitEntryPoint": true
   },
-  "dependencies": {},
+  "dependencies": {
+    "MailAware.Utils": "1.0.0-*"
+  },
   "frameworks": {
     "netcoreapp1.1": {
       "dependencies": {
@@ -12,7 +14,6 @@
           "type": "platform",
           "version": "1.1.0"
         },
-        "Newtonsoft.Json": "9.0.1",
         "MailKit": "1.10.1"
       },
       "imports": "dnxcore50"

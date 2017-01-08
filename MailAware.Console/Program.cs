@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MailKit.Net.Imap;
 using MailKit;
+using MailKit.Net.Imap;
+using MailAware.Utils.Config;
 
-namespace ConsoleApplication
+namespace MailAware.Console
 {
     public class Program
     {
@@ -15,24 +16,24 @@ namespace ConsoleApplication
 
         public Program()
         {
-            _config = new Config();
+            _config = new MailAwareConfig();
             _client = new ImapClient();
             _client.ServerCertificateValidationCallback = (s, c, h, e) => true;
         }
 
         public async Task Run()
         {
-            Console.WriteLine("Hello World!");
+            System.Console.WriteLine("Hello World!");
 
             if (!_config.ReadConfig())
             {
-                Console.WriteLine("Failed to read configuration file.");
+                System.Console.WriteLine("Failed to read configuration file.");
                 return;
             }
 
             if (!_config.Validate())
             {
-                Console.WriteLine("Configuration file invalid.");
+                System.Console.WriteLine("Configuration file invalid.");
                 return;
             }
 
@@ -49,15 +50,15 @@ namespace ConsoleApplication
                     var inbox = _client.Inbox;
                     await inbox.OpenAsync(FolderAccess.ReadOnly);
 
-                    Console.WriteLine("Total messages: {0}", inbox.Count);
-                    Console.WriteLine("Recent messages: {0}", inbox.Recent);
+                    System.Console.WriteLine("Total messages: {0}", inbox.Count);
+                    System.Console.WriteLine("Recent messages: {0}", inbox.Recent);
 
                     while (true)
                     {
                         for (int i = 0; i < inbox.Count; i++)
                         {
                             var message = inbox.GetMessage(i);
-                            Console.WriteLine("Subject: {0}", message.Subject);
+                            System.Console.WriteLine("Subject: {0}", message.Subject);
                         }
 
                         await _client.NoOpAsync();
@@ -69,14 +70,14 @@ namespace ConsoleApplication
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Exception: {0}", e.Message);
+                    System.Console.WriteLine("Exception: {0}", e.Message);
                 }
             }
         }
 
         #region Fields
 
-        private Config _config;
+        private MailAwareConfig _config;
         private ImapClient _client;
 
         #endregion

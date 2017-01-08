@@ -1,13 +1,13 @@
-using System.IO;
 using System;
+using System.IO;
 using Newtonsoft.Json;
 
-namespace ConsoleApplication
+namespace MailAware.Utils.Config
 {
 	/// <summary>
 	/// Configuration data.
 	/// </summary>
-	public class Config
+	public class MailAwareConfig
 	{
 		#region Constants and Enums
 
@@ -52,7 +52,7 @@ namespace ConsoleApplication
 
 		#endregion
 
-		public Config()
+		public MailAwareConfig()
 		{
 
 		}

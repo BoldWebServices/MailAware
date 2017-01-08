@@ -23,8 +23,6 @@ namespace MailAware.Console
 
         public async Task Run()
         {
-            System.Console.WriteLine("Hello World!");
-
             if (!_config.ReadConfig())
             {
                 System.Console.WriteLine("Failed to read configuration file.");
@@ -42,10 +40,10 @@ namespace MailAware.Console
                 try
                 {
                     // Connect to the IMAP server
-                    await _client.ConnectAsync(_config.MailServerAddress);
+                    await _client.ConnectAsync(_config.TargetMailServer.HostAddress);
 
                     // Authorize
-                    await _client.AuthenticateAsync(_config.Username, _config.Password);
+                    await _client.AuthenticateAsync(_config.TargetMailServer.Username, _config.TargetMailServer.Password);
 
                     var inbox = _client.Inbox;
                     await inbox.OpenAsync(FolderAccess.ReadOnly);

@@ -5,7 +5,9 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "MailAware.Utils": "1.0.0-*"
+    "MailAware.Utils": {
+      "target": "project"
+    }
   },
   "frameworks": {
     "netcoreapp1.1": {

@@ -15,6 +15,16 @@ namespace MailAware.Utils.Config
 		/// The name of the configuration file.
 		/// </summary>
 		public const string ConfigFileName = "config.json";
+
+        /// <summary>
+        /// The minimum reconnect delay for connecting to servers.
+        /// </summary>
+        public const int ReconnectMinimumDelaySecs = 3;
+
+        /// <summary>
+        /// The maximum reconnect delay for connecting to servers.
+        /// </summary>
+        public const int ReconnectMaximumDelaySecs = 300;
         
 	    private const int DefaultAlarmThresholdSecs = 1600;
 	    private const int DefaultPollingFrequencyMs = 10000;

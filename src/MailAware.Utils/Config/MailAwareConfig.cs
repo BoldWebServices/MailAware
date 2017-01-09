@@ -26,7 +26,7 @@ namespace MailAware.Utils.Config
         /// </summary>
         public const int ReconnectMaximumDelaySecs = 300;
         
-	    private const int DefaultAlarmThresholdSecs = 1600;
+	    private const int DefaultAlarmThresholdSecs = 1800;
 	    private const int DefaultPollingFrequencyMs = 10000;
 
 		#endregion
@@ -46,9 +46,11 @@ namespace MailAware.Utils.Config
         public NotificationMailServer NotificationMailServer { get; set; }
 
         /// <summary>
-        /// The target subject prefix to monitor for.
+        /// The target subject snippet to monitor for. This is a portion of the subject that
+        /// should be contained within the target messages.
         /// </summary>
-        public string TargetSubjectPrefix { get; set; }
+        [JsonProperty(PropertyName = "targetSubjectSnippet")]
+        public string TargetSubjectSnippet { get; set; }
 
 		/// <summary>
 		/// Threshold in seconds to allow until a no email alarm is triggered.

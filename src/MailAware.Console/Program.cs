@@ -2,7 +2,10 @@
 using System.Threading.Tasks;
 using MailKit;
 using MailKit.Net.Imap;
+using MailKit.Search;
 using MailAware.Utils.Config;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace MailAware.Console
 {
@@ -46,7 +49,8 @@ namespace MailAware.Console
                     await _client.ConnectAsync(_config.TargetMailServer.HostAddress);
 
                     // Authorize.
-                    await _client.AuthenticateAsync(_config.TargetMailServer.Username, _config.TargetMailServer.Password);
+                    await _client.AuthenticateAsync(_config.TargetMailServer.Username,
+                        _config.TargetMailServer.Password);
 
                     var inbox = _client.Inbox;
                     await inbox.OpenAsync(FolderAccess.ReadOnly);
@@ -60,10 +64,28 @@ namespace MailAware.Console
 
                     while (true)
                     {
-                        for (int i = 0; i < inbox.Count; i++)
+                        // Setup the threshold to search and a query
+                        var alarmThreshold = DateTime.Now.AddSeconds(-_config.AlarmThresholdSecs);
+                        System.Console.WriteLine("{0} - Searching for messages delivered after: {1}",
+                            DateTime.Now, alarmThreshold);
+                        var query = SearchQuery.DeliveredAfter(alarmThreshold).And(
+                            SearchQuery.SubjectContains(_config.TargetSubjectSnippet));
+
+                        // These results are only narrowed down to our target day, we need to
+                        // manually filter down to the time.
+                        var searchResults = await inbox.SearchAsync(query);
+                        var filteredResults = await NarrowDown(inbox, searchResults, alarmThreshold);
+
+                        if (filteredResults.Count > 0)
                         {
-                            var message = inbox.GetMessage(i);
-                            System.Console.WriteLine("Subject: {0}", message.Subject);
+                            System.Console.WriteLine("{0} - System is alive. Found {1} target message(s).",
+                                DateTime.Now, filteredResults.Count);
+                        }
+
+                        foreach (var message in filteredResults)
+                        {
+                            System.Console.WriteLine("Subject: {0}, received date: {1}", message.Subject,
+                                message.Date);
                         }
 
                         await _client.NoOpAsync();
@@ -71,11 +93,17 @@ namespace MailAware.Console
                         await Task.Delay(_config.PollingFrequencyMs);
                     }
 
-                    await _client.DisconnectAsync(true);
                 }
                 catch (Exception e)
                 {
                     System.Console.WriteLine("{0} - Exception: {1}\n", DateTime.Now, e.Message);
+                }
+                finally
+                {
+                    if (_client.IsConnected)
+                    {
+                        await _client.DisconnectAsync(true);
+                    }
                 }
 
                 await Task.Delay(_currentReconnectDelaySecs * 1000);
@@ -87,6 +115,22 @@ namespace MailAware.Console
                     _currentReconnectDelaySecs = MailAwareConfig.ReconnectMaximumDelaySecs;
                 }
             }
+        }
+
+        private async Task<IList<MimeKit.MimeMessage>> NarrowDown(IMailFolder inbox, IList<UniqueId> uids, DateTime threshold)
+        {
+            var results = new List<MimeKit.MimeMessage>();
+
+            foreach (var uid in uids)
+            {
+                var message = await inbox.GetMessageAsync(uid);
+                if (message.Date.DateTime > threshold)
+                {
+                    results.Add(message);
+                }
+            }
+
+            return results;
         }
 
         #region Fields

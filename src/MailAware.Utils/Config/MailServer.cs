@@ -20,7 +20,7 @@ namespace MailAware.Utils.Config
 		/// </summary>
 		[JsonProperty(PropertyName = "hostAddress")]
 		public string HostAddress { get; set; }
-		
+
 		/// <summary>
 		/// Host port for the mail server.
 		/// </summary>

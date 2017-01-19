@@ -1,8 +1,8 @@
 using System;
-using System.IO;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace MailAware.Utils.Config
 {
@@ -72,16 +72,14 @@ namespace MailAware.Utils.Config
 		/// <returns>Whether or not the config is valid.</returns>
 		public bool Validate()
 		{
-			if (TargetMailServers == null ||
-				NotificationMailServer == null)
+			if (TargetMailServers == null || NotificationMailServer == null)
 			{
 				return false;
 			}
 
 			// Validate sub items.
 			var targets = new List<TargetMailServer>(TargetMailServers);
-			if (!NotificationMailServer.Validate() ||
-				targets.Any(target => !target.Validate()))
+			if (!NotificationMailServer.Validate() || targets.Any(target => !target.Validate()))
 			{
 				return false;
 			}

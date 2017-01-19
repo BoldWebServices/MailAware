@@ -1,20 +1,20 @@
-﻿using MailAware.Utils.Config;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using MailAware.Utils.Config;
 using MailAware.Utils.Services;
 
 namespace MailAware.Console
 {
 	public class Program
 	{
+		public Program()
+		{
+			_config = new MailAwareConfig();
+		}
+
 		public static void Main(string[] args)
 		{
 			var program = new Program();
 			program.Run();
-		}
-
-		public Program()
-		{
-			_config = new MailAwareConfig();
 		}
 
 		public void Run()
@@ -42,7 +42,7 @@ namespace MailAware.Console
 
 			System.Console.WriteLine("Started {0} monitor(s).", monitors.Count);
 			System.Console.WriteLine("Press \"q\" to quit...");
-			
+
 			bool running = true;
 			while (running)
 			{
@@ -59,7 +59,7 @@ namespace MailAware.Console
 
 		#region Fields
 
-		private MailAwareConfig _config;
+		private readonly MailAwareConfig _config;
 
 		#endregion
 	}

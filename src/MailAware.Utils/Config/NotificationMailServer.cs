@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace MailAware.Utils.Config
 {
@@ -34,15 +33,11 @@ namespace MailAware.Utils.Config
 		/// <see cref="IConfigItem.Validate" />
 		public bool Validate()
 		{
-			if (string.IsNullOrEmpty(FromAddress) ||
-				Recipients == null)
+			if (string.IsNullOrEmpty(FromAddress) || Recipients == null)
 			{
 				return false;
 			}
-			else
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 }

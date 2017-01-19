@@ -1,19 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
+using MailAware.Utils.Config;
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
-using MailAware.Utils.Config;
-using System.Collections.Generic;
+using MimeKit;
 
 namespace MailAware.Utils.Services
 {
 	/// <summary>
-	/// Monitors a 
+	/// Monitors a
 	/// </summary>
 	public class MailboxMonitor : IMailboxMonitor
 	{
-		/// <see cref="IMailboxMonitor.StartMonitoring() "/>
+		/// <see cref="IMailboxMonitor.StartMonitoring() " />
 		public void StartMonitoring(TargetMailServer targetConfig,
 			NotificationMailServer notificationConfig)
 		{
@@ -42,8 +43,7 @@ namespace MailAware.Utils.Services
 		{
 			while (_running)
 			{
-				Console.WriteLine("{0} - Attempting to connect to the mail server...",
-					DateTime.Now);
+				Console.WriteLine("{0} - Attempting to connect to the mail server...", DateTime.Now);
 
 				bool connected = false;
 				try
@@ -60,13 +60,11 @@ namespace MailAware.Utils.Services
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine("{0} - Failed to connect. Exception: {1}",
-						DateTime.Now, e.Message);
+					Console.WriteLine("{0} - Failed to connect. Exception: {1}", DateTime.Now, e.Message);
 				}
 
 				if (connected)
 				{
-
 					// If we were able to connect and open the mailbox successfully, reset the
 					// reconnect delay.
 					_currentReconnectDelaySecs = MailAwareConfig.ReconnectMinimumDelaySecs;
@@ -78,10 +76,11 @@ namespace MailAware.Utils.Services
 					{
 						// Setup the threshold to search and a query.
 						var alarmThreshold = DateTime.Now.AddSeconds(-_targetConfig.AlarmThresholdSecs);
-						Console.WriteLine("{0} - Searching for messages delivered after: {1}",
-							DateTime.Now, alarmThreshold);
-						var query = SearchQuery.DeliveredAfter(alarmThreshold).And(
-							SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet));
+						Console.WriteLine("{0} - Searching for messages delivered after: {1}", DateTime.Now,
+							alarmThreshold);
+						var query =
+							SearchQuery.DeliveredAfter(alarmThreshold).And(
+								SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet));
 
 						// These results are only narrowed down to our target day, we need to
 						// manually filter down to the time.
@@ -90,20 +89,19 @@ namespace MailAware.Utils.Services
 
 						if (filteredResults.Count > 0)
 						{
-							Console.WriteLine("{0} - System is alive. Found {1} target message(s).",
-								DateTime.Now, filteredResults.Count);
+							Console.WriteLine("{0} - System is alive. Found {1} target message(s).", DateTime.Now,
+								filteredResults.Count);
 						}
 
 						foreach (var message in filteredResults)
 						{
-							Console.WriteLine("Subject: {0}, sent date: {1}", message.Subject,
-								message.Date);
+							Console.WriteLine("Subject: {0}, sent date: {1}", message.Subject, message.Date);
 						}
 
 						_imapClient.NoOp();
 
 						Thread.Sleep(_targetConfig.PollingFrequencyMs);
-					} 
+					}
 				}
 
 				// Make sure we cleanup.
@@ -133,9 +131,9 @@ namespace MailAware.Utils.Services
 			}
 		}
 
-		private IList<MimeKit.MimeMessage> NarrowDown(IList<UniqueId> uids, DateTime threshold)
+		private IList<MimeMessage> NarrowDown(IList<UniqueId> uids, DateTime threshold)
 		{
-			var results = new List<MimeKit.MimeMessage>();
+			var results = new List<MimeMessage>();
 
 			foreach (var uid in uids)
 			{

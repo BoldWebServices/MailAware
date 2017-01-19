@@ -8,7 +8,7 @@ namespace MailAware.Utils.Config
 	public class TargetMailServer : MailServer, IConfigItem
 	{
 		#region Constants and Enums
-		
+
 		private const int DefaultAlarmThresholdSecs = 1800;
 		private const int DefaultPollingFrequencyMs = 10000;
 

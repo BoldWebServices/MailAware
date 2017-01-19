@@ -5,11 +5,11 @@ namespace MailAware.Utils.Services
 	public interface ISmtpMailer
 	{
 		#region Properties
-		
+
 		bool IgnoreSslCertificates { get; set; }
-		
+
 		#endregion
-		
+
 		Task<bool> ConnectAsync(string hostName, int hostPort = 0, string username = null,
 			string password = null);
 

@@ -5,118 +5,118 @@ using MimeKit;
 
 namespace MailAware.Utils.Services
 {
-    public class SmtpMailer : ISmtpMailer
-    {
-        #region Properties
+	public class SmtpMailer : ISmtpMailer
+	{
+		#region Properties
 
-        public bool IgnoreSslCertificates { get; set; }
+		public bool IgnoreSslCertificates { get; set; }
 
-        #endregion
+		#endregion
 
-        public SmtpMailer()
-        {
-            _client = new SmtpClient();
-        }
+		public SmtpMailer()
+		{
+			_client = new SmtpClient();
+		}
 
-        public async Task<bool> ConnectAsync(string hostName, int hostPort = 0, string username = null, string password = null)
-        {
-            if (hostName == null)
-            {
-                throw new ArgumentNullException(nameof(hostName));
-            }
+		public async Task<bool> ConnectAsync(string hostName, int hostPort = 0, string username = null, string password = null)
+		{
+			if (hostName == null)
+			{
+				throw new ArgumentNullException(nameof(hostName));
+			}
 
-            try
-            {
-                if (IgnoreSslCertificates)
-                {
-                    _client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                }
-                else
-                {
-                    _client.ServerCertificateValidationCallback = null;
-                }
+			try
+			{
+				if (IgnoreSslCertificates)
+				{
+					_client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+				}
+				else
+				{
+					_client.ServerCertificateValidationCallback = null;
+				}
 
-                await _client.ConnectAsync(hostName, hostPort);
+				await _client.ConnectAsync(hostName, hostPort);
 
-                if (!string.IsNullOrEmpty(username))
-                {
-                    await _client.AuthenticateAsync(username, password);
-                }
+				if (!string.IsNullOrEmpty(username))
+				{
+					await _client.AuthenticateAsync(username, password);
+				}
 
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error connecting: {0}", e.Message);
-            }
+				return true;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Error connecting: {0}", e.Message);
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        public async Task<bool> ConnectAsync(string hostName, string username = null, string password = null)
-        {
-            return await ConnectAsync(hostName, 0, username, password);
-        }
+		public async Task<bool> ConnectAsync(string hostName, string username = null, string password = null)
+		{
+			return await ConnectAsync(hostName, 0, username, password);
+		}
 
-        public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress, string[] recipients)
-        {
-            if (fromAddress == null)
-            {
-                throw new ArgumentNullException(nameof(fromAddress));
-            }
+		public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress, string[] recipients)
+		{
+			if (fromAddress == null)
+			{
+				throw new ArgumentNullException(nameof(fromAddress));
+			}
 
-            if (recipients == null)
-            {
-                throw new ArgumentNullException(nameof(recipients));
-            }
+			if (recipients == null)
+			{
+				throw new ArgumentNullException(nameof(recipients));
+			}
 
-            try
-            {
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress(fromAddress));
+			try
+			{
+				var message = new MimeMessage();
+				message.From.Add(new MailboxAddress(fromAddress));
 
-                foreach (var recipient in recipients)
-                {
-                    message.To.Add(new MailboxAddress(recipient));
-                }
+				foreach (var recipient in recipients)
+				{
+					message.To.Add(new MailboxAddress(recipient));
+				}
 
-                message.Subject = subject;
-                message.Body = new TextPart("plain")
-                {
-                    Text = body
-                };
+				message.Subject = subject;
+				message.Body = new TextPart("plain")
+				{
+					Text = body
+				};
 
-                await _client.SendAsync(message);
+				await _client.SendAsync(message);
 
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception sending message: {0}", e.Message);
-            }
+				return true;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Exception sending message: {0}", e.Message);
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        public async Task<bool> DisconnectAsync()
-        {
-            try
-            {
-                await _client.DisconnectAsync(true);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception disconnecting: {0}", e.Message);
-            }
+		public async Task<bool> DisconnectAsync()
+		{
+			try
+			{
+				await _client.DisconnectAsync(true);
+				return true;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Exception disconnecting: {0}", e.Message);
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        #region Fields
+		#region Fields
 
-        private readonly SmtpClient _client;
+		private readonly SmtpClient _client;
 
-        #endregion
-    }
+		#endregion
+	}
 }

@@ -18,38 +18,38 @@ namespace MailAware.Utils.Config
 		/// </summary>
 		public const string ConfigFileName = "config.json";
 
-        /// <summary>
-        /// The minimum reconnect delay for connecting to servers.
-        /// </summary>
-        public const int ReconnectMinimumDelaySecs = 3;
+		/// <summary>
+		/// The minimum reconnect delay for connecting to servers.
+		/// </summary>
+		public const int ReconnectMinimumDelaySecs = 3;
 
-        /// <summary>
-        /// The maximum reconnect delay for connecting to servers.
-        /// </summary>
-        public const int ReconnectMaximumDelaySecs = 300;
+		/// <summary>
+		/// The maximum reconnect delay for connecting to servers.
+		/// </summary>
+		public const int ReconnectMaximumDelaySecs = 300;
 
 		#endregion
 
 		#region Properties
 
-        /// <summary>
-        /// The target mail server configs.
-        /// </summary>
-        [JsonProperty(PropertyName = "targetMailServers")]
+		/// <summary>
+		/// The target mail server configs.
+		/// </summary>
+		[JsonProperty(PropertyName = "targetMailServers")]
 		public TargetMailServer[] TargetMailServers { get; set; }
 
-        /// <summary>
-        /// The mail server used for sending notifications config.
-        /// </summary>
-        [JsonProperty(PropertyName = "notificationMailServer")]
-        public NotificationMailServer NotificationMailServer { get; set; }
+		/// <summary>
+		/// The mail server used for sending notifications config.
+		/// </summary>
+		[JsonProperty(PropertyName = "notificationMailServer")]
+		public NotificationMailServer NotificationMailServer { get; set; }
 
 		#endregion
 
-        /// <summary>
-        /// Reads the configuration.
-        /// </summary>
-        /// <returns>Whether or not reading the config succeeded.</returns>
+		/// <summary>
+		/// Reads the configuration.
+		/// </summary>
+		/// <returns>Whether or not reading the config succeeded.</returns>
 		public bool ReadConfig()
 		{
 			try
@@ -66,25 +66,25 @@ namespace MailAware.Utils.Config
 			return false;
 		}
 
-        /// <summary>
-        /// Validates the configuration.
-        /// </summary>
-        /// <returns>Whether or not the config is valid.</returns>
+		/// <summary>
+		/// Validates the configuration.
+		/// </summary>
+		/// <returns>Whether or not the config is valid.</returns>
 		public bool Validate()
 		{
 			if (TargetMailServers == null ||
-                NotificationMailServer == null)
+				NotificationMailServer == null)
 			{
 				return false;
 			}
 
-            // Validate sub items.
-            var targets = new List<TargetMailServer>(TargetMailServers);
-            if (!NotificationMailServer.Validate() ||
-                targets.Any(target => !target.Validate()))
-            {
-                return false;
-            }
+			// Validate sub items.
+			var targets = new List<TargetMailServer>(TargetMailServers);
+			if (!NotificationMailServer.Validate() ||
+				targets.Any(target => !target.Validate()))
+			{
+				return false;
+			}
 
 			return true;
 		}

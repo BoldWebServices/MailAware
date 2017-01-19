@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace MailAware.Utils.Config
 {
     /// <summary>
     /// Configuration for the mail server to use for sending notifications.
     /// </summary>
-    public class NotificationMailServer : MailServer
+    public class NotificationMailServer : MailServer, IConfigItem
     {
         #region Properties
 
@@ -29,5 +30,19 @@ namespace MailAware.Utils.Config
         public string[] Recipients { get; set; }
 
         #endregion
+
+        /// <see cref="IConfigItem.Validate" />
+        public bool Validate()
+        {
+            if (string.IsNullOrEmpty(FromAddress) ||
+                Recipients == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 }

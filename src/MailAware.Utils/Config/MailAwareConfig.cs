@@ -1,13 +1,15 @@
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MailAware.Utils.Config
 {
 	/// <summary>
 	/// Configuration data.
 	/// </summary>
-	public class MailAwareConfig
+	public class MailAwareConfig : IConfigItem
 	{
 		#region Constants and Enums
 
@@ -25,19 +27,16 @@ namespace MailAware.Utils.Config
         /// The maximum reconnect delay for connecting to servers.
         /// </summary>
         public const int ReconnectMaximumDelaySecs = 300;
-        
-	    private const int DefaultAlarmThresholdSecs = 1800;
-	    private const int DefaultPollingFrequencyMs = 10000;
 
 		#endregion
 
 		#region Properties
 
         /// <summary>
-        /// The target mail server config.
+        /// The target mail server configs.
         /// </summary>
-        [JsonProperty(PropertyName = "targetMailServer")]
-		public MailServer TargetMailServer { get; set; }
+        [JsonProperty(PropertyName = "targetMailServers")]
+		public TargetMailServer[] TargetMailServers { get; set; }
 
         /// <summary>
         /// The mail server used for sending notifications config.
@@ -45,35 +44,7 @@ namespace MailAware.Utils.Config
         [JsonProperty(PropertyName = "notificationMailServer")]
         public NotificationMailServer NotificationMailServer { get; set; }
 
-        /// <summary>
-        /// The target subject snippet to monitor for. This is a portion of the subject that
-        /// should be contained within the target messages.
-        /// </summary>
-        [JsonProperty(PropertyName = "targetSubjectSnippet")]
-        public string TargetSubjectSnippet { get; set; }
-
-		/// <summary>
-		/// Threshold in seconds to allow until a no email alarm is triggered.
-		/// </summary>
-		[JsonProperty(PropertyName = "alarmThresholdSecs")]
-		public int AlarmThresholdSecs { get; set; }
-
-		/// <summary>
-		/// How often to poll the mailbox.
-		/// </summary>
-		[JsonProperty(PropertyName = "pollingFrequencyMs")]
-		public int PollingFrequencyMs { get; set; }
-
 		#endregion
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-		public MailAwareConfig()
-		{
-		    AlarmThresholdSecs = DefaultAlarmThresholdSecs;
-		    PollingFrequencyMs = DefaultPollingFrequencyMs;
-		}
 
         /// <summary>
         /// Reads the configuration.
@@ -101,13 +72,19 @@ namespace MailAware.Utils.Config
         /// <returns>Whether or not the config is valid.</returns>
 		public bool Validate()
 		{
-			if (TargetMailServer == null ||
-                NotificationMailServer == null ||
-				AlarmThresholdSecs <= 0 ||
-				PollingFrequencyMs <= 0)
+			if (TargetMailServers == null ||
+                NotificationMailServer == null)
 			{
 				return false;
 			}
+
+            // Validate sub items.
+            var targets = new List<TargetMailServer>(TargetMailServers);
+            if (!NotificationMailServer.Validate() ||
+                targets.Any(target => !target.Validate()))
+            {
+                return false;
+            }
 
 			return true;
 		}

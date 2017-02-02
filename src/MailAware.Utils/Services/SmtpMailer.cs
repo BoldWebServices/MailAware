@@ -18,7 +18,8 @@ namespace MailAware.Utils.Services
 			_client = new SmtpClient();
 		}
 
-		public async Task<bool> ConnectAsync(string hostName, int hostPort = 0, string username = null, string password = null)
+		public async Task<bool> ConnectAsync(string hostName, int hostPort = 0, string username = null,
+			string password = null)
 		{
 			if (hostName == null)
 			{
@@ -53,12 +54,14 @@ namespace MailAware.Utils.Services
 			return false;
 		}
 
-		public async Task<bool> ConnectAsync(string hostName, string username = null, string password = null)
+		public async Task<bool> ConnectAsync(string hostName, string username = null,
+			string password = null)
 		{
 			return await ConnectAsync(hostName, 0, username, password);
 		}
 
-		public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress, string[] recipients)
+		public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress,
+			string[] recipients)
 		{
 			if (fromAddress == null)
 			{

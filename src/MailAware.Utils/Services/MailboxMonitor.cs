@@ -14,7 +14,7 @@ namespace MailAware.Utils.Services
 	/// </summary>
 	public class MailboxMonitor : IMailboxMonitor
 	{
-		/// <see cref="IMailboxMonitor.StartMonitoring() " />
+		/// <see cref="IMailboxMonitor.StartMonitoring" />
 		public void StartMonitoring(TargetMailServer targetConfig,
 			NotificationMailServer notificationConfig)
 		{
@@ -29,7 +29,7 @@ namespace MailAware.Utils.Services
 			_currentReconnectDelaySecs = MailAwareConfig.ReconnectMinimumDelaySecs;
 			_targetConfig = targetConfig;
 			_notificationConfig = notificationConfig;
-			var thread = new Thread(() => Run());
+			var thread = new Thread(Run);
 			thread.Start();
 		}
 

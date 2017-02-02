@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MailAware.Utils.Config;
 using MailAware.Utils.Services;
+using StructureMap;
 
 namespace MailAware.Console
 {
@@ -19,6 +20,14 @@ namespace MailAware.Console
 
 		public void Run()
 		{
+            // Setup DI container
+		    var container = new Container(c => c.Scan(scanner =>
+		    {
+                scanner.AssembliesAndExecutablesFromApplicationBaseDirectory();
+		        scanner.WithDefaultConventions();
+		    }));
+
+
 			if (!_config.ReadConfig())
 			{
 				System.Console.WriteLine("Failed to read configuration file.");
@@ -35,7 +44,7 @@ namespace MailAware.Console
 			var monitors = new List<IMailboxMonitor>();
 			foreach (var target in _config.TargetMailServers)
 			{
-				var monitor = new MailboxMonitor();
+			    var monitor = container.GetInstance<IMailboxMonitor>();
 				monitor.StartMonitoring(target, _config.NotificationMailServer);
 				monitors.Add(monitor);
 			}

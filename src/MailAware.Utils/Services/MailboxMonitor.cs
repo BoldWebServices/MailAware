@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using MailAware.Utils.Config;
 using MailKit;
 using MailKit.Net.Imap;
@@ -39,6 +40,38 @@ namespace MailAware.Utils.Services
 			_running = false;
 		}
 
+	    public async Task<bool> PurgeMatchingEmails()
+        {
+            if (!_running)
+            {
+                throw new InvalidOperationException("Not connected to the mailbox.");
+            }
+
+            try
+            {
+                // Search for matching emails.
+                var query = SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet);
+                var searchResults = await _inbox.SearchAsync(query);
+
+                Console.WriteLine("Found {0} matching emails for deletion.", searchResults.Count);
+
+                // Flag for deletion and then expunge the mailbox.
+                if (searchResults.Count > 0)
+                {
+                    await _inbox.SetFlagsAsync(searchResults, MessageFlags.Deleted, false);
+                    await _inbox.ExpungeAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    "Encountered an exception while purging messages. Exception: {0}", e.Message);
+                return false;
+            }
+
+            return true;
+	    }
+
 		private void Run()
 		{
 			while (_running)
@@ -55,7 +88,7 @@ namespace MailAware.Utils.Services
 					_imapClient.Authenticate(_targetConfig.Username, _targetConfig.Password);
 
 					_inbox = _imapClient.Inbox;
-					_inbox.Open(FolderAccess.ReadOnly);
+					_inbox.Open(FolderAccess.ReadWrite);
 					connected = true;
 				}
 				catch (Exception e)
@@ -70,7 +103,9 @@ namespace MailAware.Utils.Services
 					_currentReconnectDelaySecs = MailAwareConfig.ReconnectMinimumDelaySecs;
 
 					Console.WriteLine("Total messages: {0}", _inbox.Count);
-					Console.WriteLine("Recent messages: {0}", _inbox.Recent);
+
+                    // Delete matching emails.
+				    PurgeMatchingEmails().Wait();
 
 					while (_running)
 					{

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MailAware.Utils.Config;
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
-using MimeKit;
 
 namespace MailAware.Utils.Services
 {
@@ -15,6 +13,20 @@ namespace MailAware.Utils.Services
     /// </summary>
     public class MailboxMonitor : IMailboxMonitor
     {
+        /// <summary>
+        /// Initializes an instance of the <see cref="MailboxMonitor" /> class.
+        /// </summary>
+        /// <param name="alarmController">An alarm state controller.</param>
+        public MailboxMonitor(IAlarmController alarmController)
+        {
+            if (alarmController == null)
+            {
+                throw new ArgumentNullException(nameof(alarmController));
+            }
+
+            _alarmController = alarmController;
+        }
+
         /// <see cref="IMailboxMonitor.StartMonitoring" />
         public void StartMonitoring(TargetMailServer targetConfig,
             NotificationMailServer notificationConfig)
@@ -104,8 +116,11 @@ namespace MailAware.Utils.Services
 
                     Console.WriteLine("Total messages: {0}", _inbox.Count);
 
-                    // Delete matching emails.
+                    // Delete matching emails to start off with a fresh state.
                     PurgeMatchingEmails().Wait();
+
+                    // Reinitialize our alarm controller.
+                    _alarmController.Initialize(_targetConfig.AlarmThresholdSecs);
 
                     while (_running)
                     {
@@ -117,21 +132,22 @@ namespace MailAware.Utils.Services
                             SearchQuery.DeliveredAfter(alarmThreshold).And(
                                 SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet));
 
-                        // These results are only narrowed down to our target day, we need to
-                        // manually filter down to the time.
+                        // These results are only narrowed down to our target day.
                         var searchResults = _inbox.Search(query);
-                        var filteredResults = NarrowDown(searchResults, alarmThreshold);
 
-                        if (filteredResults.Count > 0)
+                        if (searchResults.Count > 0)
                         {
-                            Console.WriteLine("{0} - System is alive. Found {1} target message(s).", DateTime.Now,
-                                filteredResults.Count);
-                        }
+                            Console.WriteLine("{0} - Found {1} target message(s).", DateTime.Now,
+                                searchResults.Count);
 
-                        foreach (var message in filteredResults)
-                        {
+                            var message = _inbox.GetMessage(searchResults[searchResults.Count - 1]);
+                            _alarmController.MessageSeen(message.Date.DateTime);
                             Console.WriteLine("Subject: {0}, sent date: {1}", message.Subject, message.Date);
+
+                            PurgeMatchingEmails().Wait();
                         }
+
+                        _alarmController.ProcessState().Wait();
 
                         _imapClient.NoOp();
 
@@ -166,22 +182,6 @@ namespace MailAware.Utils.Services
             }
         }
 
-        private IList<MimeMessage> NarrowDown(IList<UniqueId> uids, DateTime threshold)
-        {
-            var results = new List<MimeMessage>();
-
-            foreach (var uid in uids)
-            {
-                var message = _inbox.GetMessage(uid);
-                if (message.Date.DateTime > threshold)
-                {
-                    results.Add(message);
-                }
-            }
-
-            return results;
-        }
-
         #region Fields
 
         private bool _running;
@@ -190,6 +190,7 @@ namespace MailAware.Utils.Services
         private ImapClient _imapClient;
         private int _currentReconnectDelaySecs;
         private IMailFolder _inbox;
+        private readonly IAlarmController _alarmController;
 
         #endregion
     }

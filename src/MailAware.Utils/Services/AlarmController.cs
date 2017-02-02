@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace MailAware.Utils.Services
@@ -40,6 +41,8 @@ namespace MailAware.Utils.Services
             {
                 throw new InvalidOperationException("Alarm controller not initialized.");
             }
+
+            _lastMessageReceivedDate = date;
         }
 
         /// <see cref="IAlarmController.MessageSeen" />
@@ -49,6 +52,45 @@ namespace MailAware.Utils.Services
             {
                 throw new InvalidOperationException("Alarm controller not initialized.");
             }
+
+            // Handle transition to alarm state
+            if (_currentState == AlarmState.Normal)
+            {
+                if (!WithinThreshold())
+                {
+                    await HandleStateChange(_currentState, AlarmState.AlarmThresholdExceeded);
+                }
+            }
+            // Handle transition back to normal state
+            else if (_currentState == AlarmState.AlarmThresholdExceeded)
+            {
+                if (WithinThreshold())
+                {
+                    await HandleStateChange(_currentState, AlarmState.Normal);
+                }
+            }
+        }
+
+        private async Task HandleStateChange(AlarmState oldState, AlarmState newState)
+        {
+            Debug.Assert(oldState != newState);
+            if (oldState == AlarmState.Normal && newState == AlarmState.AlarmThresholdExceeded)
+            {
+                Console.WriteLine("{0} - Alarm state: Alarm Threshold Exceeded", DateTime.Now);
+            }
+            if (oldState == AlarmState.AlarmThresholdExceeded && newState == AlarmState.Normal)
+            {
+                Console.WriteLine("{0} - Alarm state: Normal", DateTime.Now);
+            }
+
+            // Update the current state
+            _currentState = newState;
+        }
+
+        private bool WithinThreshold()
+        {
+            return DateTime.Now > _lastMessageReceivedDate &&
+                   DateTime.Now < _lastMessageReceivedDate.AddSeconds(_alarmThresholdSecs);
         }
 
         #region Fields

@@ -39,13 +39,15 @@ namespace MailAware.Console
                 System.Console.WriteLine("Configuration file invalid.");
                 return;
             }
+            
+            container.Inject(_config.NotificationMailServer);
 
             // Setup monitors.
             var monitors = new List<IMailboxMonitor>();
             foreach (var target in _config.TargetMailServers)
             {
                 var monitor = container.GetInstance<IMailboxMonitor>();
-                monitor.StartMonitoring(target, _config.NotificationMailServer);
+                monitor.StartMonitoring(target);
                 monitors.Add(monitor);
             }
 

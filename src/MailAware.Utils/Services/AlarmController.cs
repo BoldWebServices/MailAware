@@ -20,8 +20,17 @@ namespace MailAware.Utils.Services
 
         #endregion
 
-        public AlarmController()
+        /// <summary>
+        /// Initializes an instance of the <see cref="AlarmController" /> class.
+        /// </summary>
+        public AlarmController(INotificationService notificationService)
         {
+            if (notificationService == null)
+            {
+                throw new ArgumentNullException(nameof(notificationService));
+            }
+
+            _notificationService = notificationService;
             _currentState = AlarmState.Uninitialized;
             _lastMessageReceivedDate = DateTime.MinValue;
         }
@@ -77,10 +86,12 @@ namespace MailAware.Utils.Services
             if (oldState == AlarmState.Normal && newState == AlarmState.AlarmThresholdExceeded)
             {
                 Console.WriteLine("{0} - Alarm state: Alarm Threshold Exceeded", DateTime.Now);
+                await _notificationService.SendAlarmNotificationAsync();
             }
             if (oldState == AlarmState.AlarmThresholdExceeded && newState == AlarmState.Normal)
             {
                 Console.WriteLine("{0} - Alarm state: Normal", DateTime.Now);
+                await _notificationService.SendNormalNotificationAsync();
             }
 
             // Update the current state
@@ -98,6 +109,7 @@ namespace MailAware.Utils.Services
         private AlarmState _currentState;
         private DateTime _lastMessageReceivedDate;
         private int _alarmThresholdSecs;
+        private readonly INotificationService _notificationService;
 
         #endregion
     }

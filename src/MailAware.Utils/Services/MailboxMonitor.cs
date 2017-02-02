@@ -28,8 +28,7 @@ namespace MailAware.Utils.Services
         }
 
         /// <see cref="IMailboxMonitor.StartMonitoring" />
-        public void StartMonitoring(TargetMailServer targetConfig,
-            NotificationMailServer notificationConfig)
+        public void StartMonitoring(TargetMailServer targetConfig)
         {
             if (_running)
             {
@@ -41,7 +40,6 @@ namespace MailAware.Utils.Services
             _imapClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
             _currentReconnectDelaySecs = MailAwareConfig.ReconnectMinimumDelaySecs;
             _targetConfig = targetConfig;
-            _notificationConfig = notificationConfig;
             var thread = new Thread(Run);
             thread.Start();
         }
@@ -186,7 +184,6 @@ namespace MailAware.Utils.Services
 
         private bool _running;
         private TargetMailServer _targetConfig;
-        private NotificationMailServer _notificationConfig;
         private ImapClient _imapClient;
         private int _currentReconnectDelaySecs;
         private IMailFolder _inbox;

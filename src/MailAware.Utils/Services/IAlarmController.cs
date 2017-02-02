@@ -11,7 +11,7 @@ namespace MailAware.Utils.Services
         /// <summary>
         /// Sets up the alarm controller to be in a good non-alarmed state.
         /// </summary>
-        /// <param name="alarmThresholdSecs">The threshold in seconds for signalling an alarm state.</param>
+        /// <param name="alarmThresholdSecs">The threshold in seconds for signaling an alarm state.</param>
         void Initialize(int alarmThresholdSecs);
 
         /// <summary>

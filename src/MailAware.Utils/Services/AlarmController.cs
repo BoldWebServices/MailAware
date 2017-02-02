@@ -54,7 +54,7 @@ namespace MailAware.Utils.Services
             _lastMessageReceivedDate = date;
         }
 
-        /// <see cref="IAlarmController.MessageSeen" />
+        /// <see cref="IAlarmController.ProcessState" />
         public async Task ProcessState()
         {
             if (_currentState == AlarmState.Uninitialized)

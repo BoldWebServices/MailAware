@@ -5,19 +5,27 @@ using MimeKit;
 
 namespace MailAware.Utils.Services
 {
+    /// <summary>
+    /// Implementation of an SMTP mailer service.
+    /// </summary>
     public class SmtpMailer : ISmtpMailer
     {
         #region Properties
 
+        /// <see cref="ISmtpMailer.IgnoreSslCertificates" />
         public bool IgnoreSslCertificates { get; set; }
 
         #endregion
 
+        /// <summary>
+        /// Initializes an instance of the <see cref="SmtpMailer" /> class.
+        /// </summary>
         public SmtpMailer()
         {
             _client = new SmtpClient();
         }
 
+        /// <see cref="ISmtpMailer.ConnectAsync(string, int, string, string)" />
         public async Task<bool> ConnectAsync(string hostName, int hostPort = 0, string username = null,
             string password = null)
         {
@@ -54,12 +62,14 @@ namespace MailAware.Utils.Services
             return false;
         }
 
+        /// <see cref="ISmtpMailer.ConnectAsync(string, string, string)" />
         public async Task<bool> ConnectAsync(string hostName, string username = null,
             string password = null)
         {
             return await ConnectAsync(hostName, 0, username, password);
         }
 
+        /// <see cref="ISmtpMailer.SendMessageAsync" />
         public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress,
             string[] recipients)
         {
@@ -101,6 +111,7 @@ namespace MailAware.Utils.Services
             return false;
         }
 
+        /// <see cref="ISmtpMailer.DisconnectAsync" />
         public async Task<bool> DisconnectAsync()
         {
             try

@@ -130,24 +130,34 @@ namespace MailAware.Utils.Services
                             SearchQuery.DeliveredAfter(alarmThreshold).And(
                                 SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet));
 
-                        // These results are only narrowed down to our target day.
-                        var searchResults = _inbox.Search(query);
-
-                        if (searchResults.Count > 0)
+                        try
                         {
-                            Console.WriteLine("{0} - Found {1} target message(s).", DateTime.Now,
-                                searchResults.Count);
+                            // These results are only narrowed down to our target day.
+                            var searchResults = _inbox.Search(query);
 
-                            var message = _inbox.GetMessage(searchResults[searchResults.Count - 1]);
-                            _alarmController.MessageSeen(message.Date.DateTime);
-                            Console.WriteLine("Subject: {0}, sent date: {1}", message.Subject, message.Date);
+                            if (searchResults.Count > 0)
+                            {
+                                Console.WriteLine("{0} - Found {1} target message(s).", DateTime.Now,
+                                    searchResults.Count);
 
-                            PurgeMatchingEmails().Wait();
+                                var message = _inbox.GetMessage(searchResults[searchResults.Count - 1]);
+                                _alarmController.MessageSeen(message.Date.DateTime);
+                                Console.WriteLine("Subject: {0}, sent date: {1}", message.Subject, message.Date);
+
+                                PurgeMatchingEmails().Wait();
+                            }
+
+                            _alarmController.ProcessState().Wait();
+
+                            _imapClient.NoOp();
                         }
-
-                        _alarmController.ProcessState().Wait();
-
-                        _imapClient.NoOp();
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(
+                                "{0} - Failed to process mailbox messages. Exception: {1}",
+                                DateTime.Now, e.Message);
+                            break;
+                        }
 
                         Thread.Sleep(_targetConfig.PollingFrequencyMs);
                     }

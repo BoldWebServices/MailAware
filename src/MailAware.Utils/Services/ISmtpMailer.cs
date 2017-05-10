@@ -44,7 +44,19 @@ namespace MailAware.Utils.Services
         /// <param name="fromAddress">The sender address.</param>
         /// <param name="recipients">The set of recipients to send the message to.</param>
         /// <returns>Whether or not sending succeeded.</returns>
-        Task<bool> SendMessageAsync(string subject, string body, string fromAddress, string[] recipients);
+        Task<bool> SendMessageAsync(string subject, string body, string fromAddress,
+            string[] recipients);
+
+        /// <summary>
+        /// Sends a message to a recipient.
+        /// </summary>
+        /// <param name="subject">The message subject.</param>
+        /// <param name="body">The message body as plain text.</param>
+        /// <param name="fromAddress">The sender address.</param>
+        /// <param name="recipient">The recipient to send the message to.</param>
+        /// <returns>Whether or not sending succeeded.</returns>
+        Task<bool> SendMessageAsync(string subject, string body, string fromAddress,
+            string recipient);
 
         /// <summary>
         /// Disconnects from the SMTP server.

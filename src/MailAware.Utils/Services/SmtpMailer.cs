@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
@@ -69,29 +71,42 @@ namespace MailAware.Utils.Services
             return await ConnectAsync(hostName, 0, username, password);
         }
 
-        /// <see cref="ISmtpMailer.SendMessageAsync" />
+        /// <see cref="ISmtpMailer.SendMessageAsync(string, string, string, string[])" />
         public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress,
             string[] recipients)
         {
+            var tasks = new List<Task<bool>>();
+            foreach (var recipient in recipients)
+            {
+                tasks.Add(SendMessageAsync(subject, body, fromAddress, recipient));
+            }
+
+            var results = await Task.WhenAll(tasks);
+
+            return !results.Any(result => !result);
+        }
+
+
+        /// <see cref="ISmtpMailer.SendMessageAsync(string, string, string, string)" />
+        public async Task<bool> SendMessageAsync(string subject, string body, string fromAddress,
+            string recipient)
+        {
+
             if (fromAddress == null)
             {
                 throw new ArgumentNullException(nameof(fromAddress));
             }
 
-            if (recipients == null)
+            if (recipient == null)
             {
-                throw new ArgumentNullException(nameof(recipients));
+                throw new ArgumentNullException(nameof(recipient));
             }
 
             try
             {
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(fromAddress));
-
-                foreach (var recipient in recipients)
-                {
-                    message.To.Add(new MailboxAddress(recipient));
-                }
+                message.To.Add(new MailboxAddress(recipient));
 
                 message.Subject = subject;
                 message.Body = new TextPart("plain")

@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MailAware.Console", "src\MailAware.Console\MailAware.Console.xproj", "{362B1881-1954-49C5-BD68-1AD6D60FA65B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailAware.Console", "src\MailAware.Console\MailAware.Console.csproj", "{362B1881-1954-49C5-BD68-1AD6D60FA65B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{22CFAB67-9A7F-4597-A1FD-2D46E36E705B} = {22CFAB67-9A7F-4597-A1FD-2D46E36E705B}
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MailAware.Utils", "src\MailAware.Utils\MailAware.Utils.xproj", "{22CFAB67-9A7F-4597-A1FD-2D46E36E705B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailAware.Utils", "src\MailAware.Utils\MailAware.Utils.csproj", "{22CFAB67-9A7F-4597-A1FD-2D46E36E705B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

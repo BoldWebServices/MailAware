@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MailAware.Utils.Config;
 using MailAware.Utils.Services;
+using NLog;
 using StructureMap;
 
 namespace MailAware.Console
@@ -10,6 +11,7 @@ namespace MailAware.Console
         public Program()
         {
             _config = new MailAwareConfig();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public static void Main(string[] args)
@@ -30,13 +32,13 @@ namespace MailAware.Console
 
             if (!_config.ReadConfig())
             {
-                System.Console.WriteLine("Failed to read configuration file.");
+                _logger.Error("Failed to read configuration file.");
                 return;
             }
 
             if (!_config.Validate())
             {
-                System.Console.WriteLine("Configuration file invalid.");
+                _logger.Error("Configuration file invalid.");
                 return;
             }
             
@@ -51,8 +53,8 @@ namespace MailAware.Console
                 monitors.Add(monitor);
             }
 
-            System.Console.WriteLine("Started {0} monitor(s).", monitors.Count);
-            System.Console.WriteLine("Press \"q\" to quit...");
+            _logger.Info("Started {0} monitor(s).", monitors.Count);
+            _logger.Info("Press \"q\" to quit...");
 
             bool running = true;
             while (running)
@@ -64,13 +66,14 @@ namespace MailAware.Console
                 }
             }
 
-            System.Console.WriteLine("Stopping monitors.");
+            _logger.Info("Stopping monitors.");
             monitors.ForEach(monitor => monitor.StopMonitoring());
         }
 
         #region Fields
 
         private readonly MailAwareConfig _config;
+        private readonly Logger _logger;
 
         #endregion
     }

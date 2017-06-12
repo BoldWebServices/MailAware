@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using NLog;
 
 namespace MailAware.Utils.Services
 {
@@ -33,6 +34,7 @@ namespace MailAware.Utils.Services
             _notificationService = notificationService;
             _currentState = AlarmState.Uninitialized;
             _lastMessageReceivedDate = DateTime.MinValue;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <see cref="IAlarmController.Initialize" />
@@ -85,12 +87,12 @@ namespace MailAware.Utils.Services
             Debug.Assert(oldState != newState);
             if (oldState == AlarmState.Normal && newState == AlarmState.AlarmThresholdExceeded)
             {
-                Console.WriteLine("{0} - Alarm state: Alarm Threshold Exceeded", DateTime.Now);
+                _logger.Info("Alarm state: Alarm Threshold Exceeded");
                 await _notificationService.SendAlarmNotificationAsync();
             }
             if (oldState == AlarmState.AlarmThresholdExceeded && newState == AlarmState.Normal)
             {
-                Console.WriteLine("{0} - Alarm state: Normal", DateTime.Now);
+                _logger.Info("Alarm state: Normal");
                 await _notificationService.SendNormalNotificationAsync();
             }
 
@@ -110,6 +112,7 @@ namespace MailAware.Utils.Services
         private DateTime _lastMessageReceivedDate;
         private int _alarmThresholdSecs;
         private readonly INotificationService _notificationService;
+        private readonly Logger _logger;
 
         #endregion
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
+using NLog;
 
 namespace MailAware.Utils.Services
 {
@@ -25,6 +26,7 @@ namespace MailAware.Utils.Services
         public SmtpMailer()
         {
             _client = new SmtpClient();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <see cref="ISmtpMailer.ConnectAsync(string, int, string, string)" />
@@ -58,7 +60,8 @@ namespace MailAware.Utils.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error connecting: {0}", e.Message);
+                _logger.Error($"Failed to connect to the SMTP server: {hostName}");
+                _logger.Error(e);
             }
 
             return false;
@@ -120,7 +123,8 @@ namespace MailAware.Utils.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception sending message: {0}", e.Message);
+                _logger.Error("Failed to send email message.");
+                _logger.Error(e);
             }
 
             return false;
@@ -136,7 +140,8 @@ namespace MailAware.Utils.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception disconnecting: {0}", e.Message);
+                _logger.Error("Failed to disconnect from the SMTP server.");
+                _logger.Error(e);
             }
 
             return false;
@@ -145,6 +150,7 @@ namespace MailAware.Utils.Services
         #region Fields
 
         private readonly SmtpClient _client;
+        private readonly Logger _logger;
 
         #endregion
     }

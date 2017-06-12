@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using NLog;
 
 namespace MailAware.Utils.Config
 {
@@ -45,6 +46,14 @@ namespace MailAware.Utils.Config
         public NotificationMailServer NotificationMailServer { get; set; }
 
         #endregion
+        
+        /// <summary>
+        /// Initializes an instance of the <see cref="MailAwareConfig" /> class.
+        /// </summary>
+        public MailAwareConfig()
+        {
+            _logger = LogManager.GetCurrentClassLogger();
+        }
 
         /// <summary>
         /// Reads the configuration.
@@ -60,7 +69,7 @@ namespace MailAware.Utils.Config
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception reading config: {0}", e.Message);
+                _logger.Error(e);
             }
 
             return false;
@@ -86,5 +95,11 @@ namespace MailAware.Utils.Config
 
             return true;
         }
+
+        #region Fields
+
+        private readonly Logger _logger;
+
+        #endregion
     }
 }

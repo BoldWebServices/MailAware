@@ -5,6 +5,7 @@ using MailAware.Utils.Config;
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
+using NLog;
 
 namespace MailAware.Utils.Services
 {
@@ -25,6 +26,7 @@ namespace MailAware.Utils.Services
             }
 
             _alarmController = alarmController;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <see cref="IMailboxMonitor.StartMonitoring" />
@@ -62,8 +64,8 @@ namespace MailAware.Utils.Services
                 // Search for matching emails.
                 var query = SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet);
                 var searchResults = await _inbox.SearchAsync(query);
-
-                Console.WriteLine("Found {0} matching emails for deletion.", searchResults.Count);
+                
+                _logger.Info($"Found \"{searchResults.Count}\" matching emails for deletion.");
 
                 // Flag for deletion and then expunge the mailbox.
                 if (searchResults.Count > 0)
@@ -74,8 +76,8 @@ namespace MailAware.Utils.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(
-                    "Encountered an exception while purging messages. Exception: {0}", e.Message);
+                _logger.Error("Failed to purge messages.");
+                _logger.Error(e);
                 return false;
             }
 
@@ -86,7 +88,7 @@ namespace MailAware.Utils.Services
         {
             while (_running)
             {
-                Console.WriteLine("{0} - Attempting to connect to the mail server...", DateTime.Now);
+                _logger.Trace("Attempting to connect to the mail server...");
 
                 bool connected = false;
                 try
@@ -103,7 +105,8 @@ namespace MailAware.Utils.Services
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("{0} - Failed to connect. Exception: {1}", DateTime.Now, e.Message);
+                    _logger.Error("Failed to connect to the mail server.");
+                    _logger.Error(e);
                 }
 
                 if (connected)
@@ -111,8 +114,9 @@ namespace MailAware.Utils.Services
                     // If we were able to connect and open the mailbox successfully, reset the
                     // reconnect delay.
                     _currentReconnectDelaySecs = MailAwareConfig.ReconnectMinimumDelaySecs;
-
-                    Console.WriteLine("Total messages: {0}", _inbox.Count);
+                    
+                    _logger.Info("Successfully connected to the mail server.");
+                    _logger.Info($"The inbox has \"{_inbox.Count}\" messages.");
 
                     // Delete matching emails to start off with a fresh state.
                     PurgeMatchingEmails().Wait();
@@ -124,8 +128,6 @@ namespace MailAware.Utils.Services
                     {
                         // Setup the threshold to search and a query.
                         var alarmThreshold = DateTime.Now.AddSeconds(-_targetConfig.AlarmThresholdSecs);
-                        Console.WriteLine("{0} - Searching for messages delivered after: {1}", DateTime.Now,
-                            alarmThreshold);
                         var query =
                             SearchQuery.DeliveredAfter(alarmThreshold).And(
                                 SearchQuery.SubjectContains(_targetConfig.TargetSubjectSnippet));
@@ -137,12 +139,11 @@ namespace MailAware.Utils.Services
 
                             if (searchResults.Count > 0)
                             {
-                                Console.WriteLine("{0} - Found {1} target message(s).", DateTime.Now,
-                                    searchResults.Count);
+                                _logger.Trace($"Found \"{searchResults.Count}\" target message(s).");
 
                                 var message = _inbox.GetMessage(searchResults[searchResults.Count - 1]);
                                 _alarmController.MessageSeen(message.Date.DateTime);
-                                Console.WriteLine("Subject: {0}, sent date: {1}", message.Subject, message.Date);
+                                _logger.Trace($"Subject: \"{message.Subject}\", sent date: \"{message.Date}\"");
 
                                 PurgeMatchingEmails().Wait();
                             }
@@ -153,9 +154,8 @@ namespace MailAware.Utils.Services
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(
-                                "{0} - Failed to process mailbox messages. Exception: {1}",
-                                DateTime.Now, e.Message);
+                            _logger.Error("Failed to process mailbox messages.");
+                            _logger.Error(e);
                             break;
                         }
 
@@ -170,7 +170,7 @@ namespace MailAware.Utils.Services
                 }
                 if (_imapClient.IsConnected)
                 {
-                    Console.WriteLine("Disconnecting from mail server.");
+                    _logger.Info("Disconnecting from mail server.");
                     _imapClient.Disconnect(true);
                 }
 
@@ -198,6 +198,7 @@ namespace MailAware.Utils.Services
         private int _currentReconnectDelaySecs;
         private IMailFolder _inbox;
         private readonly IAlarmController _alarmController;
+        private readonly Logger _logger;
 
         #endregion
     }

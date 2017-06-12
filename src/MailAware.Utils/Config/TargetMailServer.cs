@@ -35,6 +35,12 @@ namespace MailAware.Utils.Config
         [JsonProperty(PropertyName = "pollingFrequencyMs")]
         public int PollingFrequencyMs { get; set; }
 
+        /// <summary>
+        /// Display name used for alarm notifications.
+        /// </summary>
+        [JsonProperty(PropertyName = "displayName")]
+        public string DisplayName { get; set; }
+
         #endregion
 
         /// <summary>

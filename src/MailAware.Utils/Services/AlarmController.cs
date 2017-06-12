@@ -26,12 +26,8 @@ namespace MailAware.Utils.Services
         /// </summary>
         public AlarmController(INotificationService notificationService)
         {
-            if (notificationService == null)
-            {
-                throw new ArgumentNullException(nameof(notificationService));
-            }
-
-            _notificationService = notificationService;
+            _notificationService = notificationService ??
+                                   throw new ArgumentNullException(nameof(notificationService));
             _currentState = AlarmState.Uninitialized;
             _lastMessageReceivedDate = DateTime.MinValue;
             _logger = LogManager.GetCurrentClassLogger();

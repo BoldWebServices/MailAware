@@ -20,12 +20,8 @@ namespace MailAware.Utils.Services
         /// <param name="alarmController">An alarm state controller.</param>
         public MailboxMonitor(IAlarmController alarmController)
         {
-            if (alarmController == null)
-            {
-                throw new ArgumentNullException(nameof(alarmController));
-            }
-
-            _alarmController = alarmController;
+            _alarmController = alarmController ??
+                               throw new ArgumentNullException(nameof(alarmController));
             _logger = LogManager.GetCurrentClassLogger();
         }
 

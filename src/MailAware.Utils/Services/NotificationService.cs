@@ -26,17 +26,9 @@ namespace MailAware.Utils.Services
         /// <param name="notificationConfig">The configuration settings for notifications.</param>
         public NotificationService(ISmtpMailer mailer, NotificationMailServer notificationConfig)
         {
-            if (mailer == null)
-            {
-                throw new ArgumentNullException(nameof(mailer));
-            }
-            if (notificationConfig == null)
-            {
-                throw new ArgumentNullException(nameof(notificationConfig));
-            }
-
-            _mailer = mailer;
-            _notificationConfig = notificationConfig;
+            _mailer = mailer ?? throw new ArgumentNullException(nameof(mailer));
+            _notificationConfig = notificationConfig ??
+                                  throw new ArgumentNullException(nameof(notificationConfig));
 
             _mailer.IgnoreSslCertificates = _notificationConfig.IgnoreSslCertificates;
         }

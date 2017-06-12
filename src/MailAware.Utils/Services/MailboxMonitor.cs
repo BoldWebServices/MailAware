@@ -118,7 +118,7 @@ namespace MailAware.Utils.Services
                     PurgeMatchingEmails().Wait();
 
                     // Reinitialize our alarm controller.
-                    _alarmController.Initialize(_targetConfig.AlarmThresholdSecs);
+                    _alarmController.Initialize(_targetConfig);
 
                     while (_running)
                     {

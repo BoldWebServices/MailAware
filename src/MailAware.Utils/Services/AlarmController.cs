@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using MailAware.Utils.Config;
 using NLog;
 
 namespace MailAware.Utils.Services
@@ -34,9 +35,10 @@ namespace MailAware.Utils.Services
         }
 
         /// <see cref="IAlarmController.Initialize" />
-        public void Initialize(int alarmThresholdSecs)
+        public void Initialize(TargetMailServer targetMailServer)
         {
-            _alarmThresholdSecs = alarmThresholdSecs;
+            _targetMailServer = targetMailServer ??
+                                throw new ArgumentNullException(nameof(targetMailServer));
             _currentState = AlarmState.Normal;
             _lastMessageReceivedDate = DateTime.Now;
         }
@@ -84,12 +86,12 @@ namespace MailAware.Utils.Services
             if (oldState == AlarmState.Normal && newState == AlarmState.AlarmThresholdExceeded)
             {
                 _logger.Info("Alarm state: Alarm Threshold Exceeded");
-                await _notificationService.SendAlarmNotificationAsync();
+                await _notificationService.SendAlarmNotificationAsync(_targetMailServer.DisplayName);
             }
             if (oldState == AlarmState.AlarmThresholdExceeded && newState == AlarmState.Normal)
             {
                 _logger.Info("Alarm state: Normal");
-                await _notificationService.SendNormalNotificationAsync();
+                await _notificationService.SendNormalNotificationAsync(_targetMailServer.DisplayName);
             }
 
             // Update the current state
@@ -99,14 +101,14 @@ namespace MailAware.Utils.Services
         private bool WithinThreshold()
         {
             return DateTime.Now > _lastMessageReceivedDate &&
-                   DateTime.Now < _lastMessageReceivedDate.AddSeconds(_alarmThresholdSecs);
+                   DateTime.Now < _lastMessageReceivedDate.AddSeconds(_targetMailServer.AlarmThresholdSecs);
         }
 
         #region Fields
 
         private AlarmState _currentState;
         private DateTime _lastMessageReceivedDate;
-        private int _alarmThresholdSecs;
+        private TargetMailServer _targetMailServer;
         private readonly INotificationService _notificationService;
         private readonly Logger _logger;
 

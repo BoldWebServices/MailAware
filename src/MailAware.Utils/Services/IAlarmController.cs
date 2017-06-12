@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MailAware.Utils.Config;
 
 namespace MailAware.Utils.Services
 {
@@ -11,8 +12,8 @@ namespace MailAware.Utils.Services
         /// <summary>
         /// Sets up the alarm controller to be in a good non-alarmed state.
         /// </summary>
-        /// <param name="alarmThresholdSecs">The threshold in seconds for signaling an alarm state.</param>
-        void Initialize(int alarmThresholdSecs);
+        /// <param name="targetMailServer">The target mail server configuration.</param>
+        void Initialize(TargetMailServer targetMailServer);
 
         /// <summary>
         /// Processes a message being received at a particular date.

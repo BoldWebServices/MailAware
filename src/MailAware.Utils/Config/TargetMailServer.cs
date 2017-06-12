@@ -55,7 +55,8 @@ namespace MailAware.Utils.Config
         /// <see cref="IConfigItem.Validate" />
         public bool Validate()
         {
-            return AlarmThresholdSecs > 0 && PollingFrequencyMs > 1000;
+            return AlarmThresholdSecs > 0 && PollingFrequencyMs > 1000 &&
+                   !string.IsNullOrEmpty(DisplayName);
         }
     }
 }

@@ -12,10 +12,10 @@ namespace MailAware.Utils.Services
         #region Constants and Enums
 
         private const string AlarmMessage =
-            "The alarm threshold has been exceeded. Current state: Alarm.";
+            "Mailbox: {0}\nCurrent state: Alarm\nMessage: The alarm threshold has been exceeded.";
 
         private const string NormalMessage =
-            "The system is functioning properly. Current state: Normal.";
+            "Mailbox: {0}\nCurrent state: Normal\nMessage: The system is functioning properly.";
 
         #endregion
 
@@ -33,14 +33,14 @@ namespace MailAware.Utils.Services
             _mailer.IgnoreSslCertificates = _notificationConfig.IgnoreSslCertificates;
         }
 
-        public async Task<bool> SendAlarmNotificationAsync()
+        public async Task<bool> SendAlarmNotificationAsync(string mailboxName)
         {
-            return await SendNotificationAsync(AlarmMessage);
+            return await SendNotificationAsync(string.Format(AlarmMessage, mailboxName));
         }
 
-        public async Task<bool> SendNormalNotificationAsync()
+        public async Task<bool> SendNormalNotificationAsync(string mailboxName)
         {
-            return await SendNotificationAsync(NormalMessage);
+            return await SendNotificationAsync(string.Format(NormalMessage, mailboxName));
         }
 
         private async Task<bool> SendNotificationAsync(string message)

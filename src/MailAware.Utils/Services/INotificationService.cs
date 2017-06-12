@@ -10,13 +10,15 @@ namespace MailAware.Utils.Services
         /// <summary>
         /// Sends a notification that an alarm condition was encountered.
         /// </summary>
+        /// <param name="mailboxName">The display name of the mailbox.</param>
         /// <returns>Whether or not the notification was sent.</returns>
-        Task<bool> SendAlarmNotificationAsync();
+        Task<bool> SendAlarmNotificationAsync(string mailboxName);
 
         /// <summary>
         /// Sends a notification that a normal condition was encountered.
         /// </summary>
+        /// <param name="mailboxName">The display name of the mailbox.</param>
         /// <returns>Whether or not the notification was sent.</returns>
-        Task<bool> SendNormalNotificationAsync();
+        Task<bool> SendNormalNotificationAsync(string mailboxName);
     }
 }

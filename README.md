@@ -15,7 +15,8 @@ Ensure you have a configuration under "src/MailAware.Console" named **config.jso
       "username": "someuser",
       "password": "somepass",
       "targetSubjectSnippet": "Status Report",
-      "alarmThresholdSecs":  1800
+      "alarmThresholdSecs":  1800,
+	  "displayName": "Mailbox 1"
     }
   ],
   "notificationMailServer": {

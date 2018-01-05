@@ -160,7 +160,7 @@ namespace MailAware.Utils.Services
                 }
 
                 // Make sure we cleanup.
-                if (_inbox.IsOpen)
+                if (_inbox != null && _inbox.IsOpen)
                 {
                     _inbox.Close();
                 }
